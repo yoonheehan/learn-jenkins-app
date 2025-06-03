@@ -14,7 +14,7 @@ pipeline {
                     ls -la
                     node --version
                     npm --version
-                    // ci용 npm 설치
+                    # ci용 npm 설치
                     npm ci
                     npm run build
                     ls -la
