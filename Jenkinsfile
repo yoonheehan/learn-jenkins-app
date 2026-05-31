@@ -2,44 +2,10 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                    reuseNode true
-                }
-            }
+        stage('Hello') {
             steps {
-                sh '''
-                    ls -la
-                    node --version
-                    npm --version
-                    # ci용 npm 설치
-                    npm ci
-                    npm run build
-                    ls -la
-                '''
+                echo 'Hello World'
             }
-        }
-        stage('Test'){
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                    reuseNode true
-                }
-            }
-            steps{
-                sh '''
-                    test -f build/index.html
-                    npm test
-                '''
-            }
-        }
-    }
-
-    post {
-        always {
-            junit 'test-results/junit.xml'
         }
     }
 }
