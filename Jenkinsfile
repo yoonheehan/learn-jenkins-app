@@ -25,39 +25,46 @@ pipeline {
             }
         }
               */
-        stage('Test') {
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                    reuseNode true
+
+        stage('Run Tests'){
+            parallel {
+                stage('Test') {
+                    agent {
+                        docker {
+                            image 'node:18-alpine'
+                            reuseNode true
+                        }
+                    }
+                    steps {
+                        sh '''
+                        #test -f build/index.html
+                        npm ci
+                        npm run test
+                        '''
+                    }
                 }
-            }
-            steps {
-                sh '''
-                   #test -f build/index.html
-                   npm ci
-                   npm run test
-                '''
+
+                stage('E2E') {
+                    agent {
+                        docker {
+                            image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                            reuseNode true
+                        }
+                    }
+                    steps {
+                        sh '''
+                            npm ci
+                            npm install -D serve wait-on
+                            npx serve -s build -l 3000 &
+                            npx wait-on http://127.0.0.1:3000
+                            npx playwright test --reporter=html
+                        '''
+                    }
+                }
             }
         }
 
-        stage('E2E') {
-            agent {
-                docker {
-                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
-                    reuseNode true
-                }
-            }
-            steps {
-                sh '''
-                    npm ci
-                    npm install -D serve wait-on
-                    npx serve -s build -l 3000 &
-                    npx wait-on http://127.0.0.1:3000
-                    npx playwright test --reporter=html
-                '''
-            }
-        }
+        
     }
 
     post {
