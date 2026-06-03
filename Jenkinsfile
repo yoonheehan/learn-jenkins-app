@@ -50,9 +50,11 @@ pipeline {
             }
             steps {
                 sh '''
-                   npm install server
-                   node_modules/serve -s build
-                   npx playwright test
+                    npm ci
+                    npm install -D serve wait-on
+                    npx serve -s build -l 3000 &
+                    npx wait-on http://127.0.0.1:3000
+                    npx playwright test
                 '''
             }
         }
