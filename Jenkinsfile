@@ -54,7 +54,7 @@ pipeline {
                     npm install -D serve wait-on
                     npx serve -s build -l 3000 &
                     npx wait-on http://127.0.0.1:3000
-                    npx playwright test
+                    npx playwright test --reporter=html
                 '''
             }
         }
