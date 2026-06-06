@@ -23,6 +23,7 @@ pipeline {
                     string(credentialsId: 'aws-lab-session-token', variable: 'AWS_SESSION_TOKEN')
                 ]) {
                     sh '''
+                        aws --version
                         export AWS_DEFAULT_REGION=us-east-1
 
                         aws sts get-caller-identity
