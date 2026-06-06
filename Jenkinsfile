@@ -25,9 +25,8 @@ pipeline {
                     sh '''
                         aws --version
                         export AWS_DEFAULT_REGION=us-east-1
-
-                        aws sts get-caller-identity
-                        aws s3 ls
+                        echo "Hello S3!!" > index.html
+                        aws s3 cp index.html s3://learn-jenkins-yoon-two/index.html
                     '''
                 }   
             }
