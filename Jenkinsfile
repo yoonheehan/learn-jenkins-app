@@ -17,13 +17,18 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'my-aws', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                withCredentials([
+                    string(credentialsId: 'aws-lab-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
+                    string(credentialsId: 'aws-lab-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY'),
+                    string(credentialsId: 'aws-lab-session-token', variable: 'AWS_SESSION_TOKEN')
+                ]) {
                     sh '''
-                        aws --version
+                        export AWS_DEFAULT_REGION=us-east-1
+
+                        aws sts get-caller-identity
                         aws s3 ls
                     '''
-                }
-                
+                }   
             }
         }
 
