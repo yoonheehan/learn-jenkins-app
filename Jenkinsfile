@@ -8,30 +8,6 @@ pipeline {
     }
 
     stages {
-
-        stage('AWS') {
-            agent {
-                docker {
-                    image 'amazon/aws-cli'
-                    args "--entrypoint=''"
-                }
-            }
-            steps {
-                withCredentials([
-                    string(credentialsId: 'aws-lab-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
-                    string(credentialsId: 'aws-lab-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY'),
-                    string(credentialsId: 'aws-lab-session-token', variable: 'AWS_SESSION_TOKEN')
-                ]) {
-                    sh '''
-                        aws --version
-                        export AWS_DEFAULT_REGION=us-east-1
-                        echo "Hello S3!!" > index.html
-                        aws s3 cp index.html s3://learn-jenkins-yoon-two/index.html
-                    '''
-                }   
-            }
-        }
-
         stage('Build') {
             agent {
                 docker {
@@ -48,6 +24,33 @@ pipeline {
                     npm run build
                     ls -la
                 '''
+            }
+        }
+
+        stage('AWS') {
+            agent {
+                docker {
+                    image 'amazon/aws-cli'
+                    args "--entrypoint=''"
+                }
+            }
+
+            environment {
+                AWS_S3_BUCKET = 'learn-jenkins-yoon-two'
+            }
+
+            steps {
+                withCredentials([
+                    string(credentialsId: 'aws-lab-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
+                    string(credentialsId: 'aws-lab-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY'),
+                    string(credentialsId: 'aws-lab-session-token', variable: 'AWS_SESSION_TOKEN')
+                ]) {
+                    sh '''
+                        aws --version
+                        export AWS_DEFAULT_REGION=us-east-1
+                        aws s3 sync build s3://$AWS_S3_BUCKET
+                    '''
+                }   
             }
         }
 
